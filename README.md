@@ -13,40 +13,22 @@ Next, another temporary table named #temp is created using the SELECT DISTINCT s
 The code provided contains SQL queries that create temporary tables, loop through data and perform calculations on the data to update the temporary table.
 
 Firstly, the code creates a temporary table named #tempsales using the SELECT...INTO statement, which selects all columns from the salesdata..RawData table.
-
+Next, another temporary table named #temp is created using the SELECT DISTINCT statement which selects distinct product, warehouse, nationalaccount and sdate columns from the salesdata..RawData table.
+After the temporary tables are created, a cursor named comb_cursor is declared to loop through each distinct combination of product, warehouse, nationalaccount and sdate from the #temp table.
+Then, the cursor is opened, and the first combination of data is fetched using the FETCH NEXT statement.
+The WHILE loop is then used to iterate through the data until there are no more combinations of data to process. Inside the loop, the code calculates the 9 week averages for the current combination of data and updates the avgfcst column in the #tempsales table.
+Finally, the cursor is closed, and the temporary table #tempsales is selected to display the updated data.
+The last two statements are commented out, which would have been used to drop the temporary tables created.
 
 
 
 ### Basic example
- After loading the packages and the excel file, the data should look like this:
+
+The following is a sample of the raw data you can download above:
+<img width="637" alt="image" src="https://user-images.githubusercontent.com/129782426/235568944-eb4ac877-4f2f-47a1-b291-b9f9369c50ee.png">
  
- <img width="956" alt="image" src="https://user-images.githubusercontent.com/129782426/235540706-fc2cd990-4ede-4a4f-83ea-5f13b78b83de.png">
+ The data is not organized so that's why creating a cursor is the best option, it grabs distinct product, warehouse, and nationalaccount and creates the forecast.
+ 
+ I have hard coded the distinct values in order to show you the output:
+ <img width="629" alt="image" src="https://user-images.githubusercontent.com/129782426/235569603-f70b3c3c-83a1-4655-977c-0ae3192962e3.png">
 
-
-Then you have to convert it into a time series and mutate the sdate column to have in weeks:
-
-<img width="602" alt="image" src="https://user-images.githubusercontent.com/129782426/235540849-30ebbae4-d38c-4a6e-891c-6a6b18cb19cb.png">
-
-The forecast functions won't understand that the missing weeks have 0 sales so You will have to fill the missing weeks and input the 0s, the result will be the following:
-
-<img width="601" alt="image" src="https://user-images.githubusercontent.com/129782426/235541008-8c8e5c48-780a-43a8-9c4b-c62103e5072e.png">
-
-
-Finally you can run the models and forecast, here is the result for the ARIMAforecast, the column ".mean" is the forecast value:
-
-<img width="954" alt="image" src="https://user-images.githubusercontent.com/129782426/235541196-a664cfb3-4b27-4ee2-b385-c79d17c7ec16.png">
-
-
-As you can tell, for the neural networks we have to do a slightly different process.
-
-We first use the select function to create a new dataframe with only the date and the sales:
-
-<img width="952" alt="image" src="https://user-images.githubusercontent.com/129782426/235541631-48426ffc-a292-45ed-a945-9b4ae918943c.png">
-
-After converting the data into a time series we can fit it into the model, the following is a graphic of the model:
-
-![image](https://user-images.githubusercontent.com/129782426/235541845-9e721694-a119-4cfe-a478-11b6975d3148.png)
-
-Finally we produce the forecast which would look like this :
-
-<img width="956" alt="image" src="https://user-images.githubusercontent.com/129782426/235542056-3e3fe15f-aabe-42da-8e17-23455afda244.png">
